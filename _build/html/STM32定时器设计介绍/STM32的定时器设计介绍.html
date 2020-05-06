@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Chinese" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Chinese" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>STM32的定时器设计介绍 &mdash; timerAdvise 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="欢迎阅读本文，本文档提出了对BL系列MCU的定时器模块进行增强的建议" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> timerAdvise
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">正文:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">STM32的定时器设计介绍</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-timers">Basic timers(基础定时器)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#feature">1. Feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#block-diagram">2. Block Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#register-design">3. Register Design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#application">4. Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">5. 优势与我们可借鉴的方面</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#general-purpose-timers">General-purpose timers(通用目的定时器)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">1. Feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">2. Block Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">3. Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">4. Register Design</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-control-timers">Advanced-control timers(增强型定时器)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">1. Feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">2. Block Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">3. Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">4. Register Design</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">timerAdvise</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>STM32的定时器设计介绍</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/STM32定时器设计介绍/STM32的定时器设计介绍.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="stm32">
+<h1>STM32的定时器设计介绍<a class="headerlink" href="#stm32" title="Permalink to this headline">¶</a></h1>
+<p>以 <a class="reference external" href="https://www.st.com/resource/en/reference_manual/cd00171190-stm32f101xx-stm32f102xx-stm32f103xx-stm32f105xx-and-stm32f107xx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf">STM32F103RC</a> 为例,ST定义了三种定时器类型。</p>
+<ul class="simple">
+<li><p>Basic timers(基础定时器)</p></li>
+<li><p>General-purpose timers(通用目的定时器)</p></li>
+<li><p>Advanced-control timers(增强型定时器)</p></li>
+</ul>
+<div class="section" id="basic-timers">
+<h2>Basic timers(基础定时器)<a class="headerlink" href="#basic-timers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="feature">
+<h3>1. Feature<a class="headerlink" href="#feature" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>16-bit auto-reload upcounter</p></li>
+<li><p>16-bit 分频器</p></li>
+<li><p>与DAC共享部分电路以驱动DAC</p></li>
+<li><p>计数超时会产生DMA Request/Interrupt</p></li>
+</ul>
+</div>
+<div class="section" id="block-diagram">
+<h3>2. Block Diagram<a class="headerlink" href="#block-diagram" title="Permalink to this headline">¶</a></h3>
+<p><img alt="Block Diagram" src="../_images/BasicTimer.PNG" /></p>
+<p>基础定时器提供了基本的功能，外部时钟在分频之后进入到基础定时器中，当基础定时器的CNT计数达到Auto-reload Register数值的时候
+产生中断/DMA请求。基础定时器仅支持上升计数模式，当达到ARR的时候自动清零。</p>
+</div>
+<div class="section" id="register-design">
+<h3>3. Register Design<a class="headerlink" href="#register-design" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><dl class="simple">
+<dt>TIMx_CR1</dt><dd><ul>
+<li><p>ARPE: 选择当溢出事件产生是否重新装载ARR的值</p></li>
+<li><p>OPM:  是否开启one-pulse模式，决定溢出事件产生后是否停止计数</p></li>
+<li><p>URS:  选择触发interrupt/DMA request的事件，是仅overflow/underflow事件还是包含其他</p></li>
+<li><p>UDIS: interrupt/DMA request事件的使能位</p></li>
+<li><p>CEN:  计数使能</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>TIMx_CR2</dt><dd><ul>
+<li><p>MMS:  当基础定时器作为主定时器为从模块提供时钟的时候，选择时钟事件，是Reset事件或者是CNT_EN事件或者是分频器update事件</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>TIMx_DIER</dt><dd><ul>
+<li><p>UDE/UIE: interrupt以及DMA的使能</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>TIMx_SR</dt><dd><ul>
+<li><p>UIF: 中断标志位</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>TIMx_EGR</dt><dd><ul>
+<li><p>UG:清理CNT的数据，重新计数</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>TIMx_CNT</dt><dd><ul>
+<li><p>CNT:计数值</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>TIMx_PSC</dt><dd><ul>
+<li><p>PSC[15:0]: 分频值</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>TIMx_ARR</dt><dd><ul>
+<li><p>ARR: 预加载值</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="application">
+<h3>4. Application<a class="headerlink" href="#application" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>提供固定事件的中断信号</p></li>
+<li><p>为DAC/ADC等其他模块提供工作时钟</p></li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h3>5. 优势与我们可借鉴的方面<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>此模块比较简单，仅支持上升计数模式，仅有一个比较值，产生固定时间的计数信号，可以把这种简单的基础计数器模块当作一个其他设备的时钟分频器。</p></li>
+<li><p>我们可以借鉴的点是，是否可以设计这种基础计数器为其他的外设提供更加灵活的时钟？</p></li>
+<li><p>之前ADC的模块存在一个问题，ADC的输入时钟在BL602设计里面只支持1 4 8 16 256 等分频选项，导致了如果输入的时钟不是由专门的PLL时钟电路产生的2.048M时钟，那么mic应用会拿不到标准的8K采样率，因为ADC会做一个64，128，或256次平均，相当于分频，使得最终的ADC时钟取不到整数，如果TIMER模块支持Basic Timer 并且这个Basic Timer可以成为ADC的输入时钟，那么就可以解决这个问题。</p></li>
+<li><p>如果Basic Timer可以为DAC提供时钟，那么DAC就可以灵活的解调各种采样率的音频。</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="general-purpose-timers">
+<h2>General-purpose timers(通用目的定时器)<a class="headerlink" href="#general-purpose-timers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>1. Feature<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id3">
+<h3>2. Block Diagram<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id4">
+<h3>3. Application<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id5">
+<h3>4. Register Design<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="advanced-control-timers">
+<h2>Advanced-control timers(增强型定时器)<a class="headerlink" href="#advanced-control-timers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h3>1. Feature<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id7">
+<h3>2. Block Diagram<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id8">
+<h3>3. Application<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id9">
+<h3>4. Register Design<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="欢迎阅读本文，本文档提出了对BL系列MCU的定时器模块进行增强的建议" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, JingyanChen
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
