@@ -8,6 +8,10 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: 正文:
 
    STM32定时器设计介绍/STM32的定时器设计介绍
+
+.. toctree::
+   :maxdepth: 2
+
+   定时器设计建议/定时器设计建议

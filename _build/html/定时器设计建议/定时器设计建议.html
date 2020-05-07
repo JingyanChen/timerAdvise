@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>定时器模块设计建议 &mdash; timerAdvise 0.1 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="prev" title="STM32的定时器设计介绍" href="../STM32定时器设计介绍/STM32的定时器设计介绍.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> timerAdvise
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../STM32定时器设计介绍/STM32的定时器设计介绍.html">STM32的定时器设计介绍</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">定时器模块设计建议</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">1. 基础定时器提供灵活的时钟给其他外设</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">想法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">应用</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">所以针对上述的实际需求，由两种方法可以改善这个问题</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">2. 增加定时器捕获功能</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">想法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">参考设计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">应用</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pwm">3. 对PWM模块增补互补输出与死区插入功能</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id10">想法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">应用</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">4. 是否可以提供下降计数模式/中间对其模式/重复计数模式等</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">想法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">应用</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">timerAdvise</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>定时器模块设计建议</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/定时器设计建议/定时器设计建议.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>定时器模块设计建议<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<div class="section" id="id2">
+<h2>1. 基础定时器提供灵活的时钟给其他外设<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id3">
+<h3>想法<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h3>
+<p>参考 STM32的Baisc Timer的设计,Basic Timer提供一个对比通道ARR计数值从0计数到ARR后会产生一个UEV，驱动interrupt/DMA事件，之后清零计数值重新开始计数
+Basic Timer的基础源时钟可灵活选择，可以将Basic Timer经过ARR分频后的驱动信号作为其他外设的输入时钟，从而达到非常灵活的外设时钟配置。这样的设计在低速外设场合，个人认为尤其有用。</p>
+</div>
+<div class="section" id="id4">
+<h3>应用<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h3>
+<p>ADC/DAC的输入时钟选择增加一个由Basic Clock输出选项。
+<img alt="时钟树增补" src="../_images/基础定时器增补.PNG" /></p>
+<p>当ADC/DAC应用在音频领域的时候，经典的调制解调速率是8kHz、11.025kHz、22.05kHz、16kHz、37.8kHz、44.1kHz、48kHz</p>
+<p>当我们需要ADC的采样频率是8K的时候，如果用过去的时钟树那有如下几种方式
+(I) adc内部仅支持1，4，8，12，16，20，24，32分频枚举。如果选择为32分频，那么要求输入时钟源为256k
+96M / 375 分频 = 256kHZ
+但是遗憾的是对96MHZ最多只能进行64分频，因为分频器只支持6个BIT。
+所以如果选择96M作为时钟源，不能得到8K的时钟输入
+(II) 选择为XCLK作为时钟输入，XCLK 支持24/32/38.4/40MHz四种数值选择，并且由硬件决定晶振频率数值
+选择24M左右源端输入，用最大的分频64，得到的输入时钟为
+24M/64=375K,依旧比256K大的多。</p>
+<p>ADC模块内部由OSR,但是OSR的仅支持64 128 256三种枚举。这样的分频使得获得整数频率的可能性很小。</p>
+<p>ChipTest/ADC/adc_mic_basic.c里面给出了一种配置方法
+96M / 2+1 = 32M 源端输入32MHZ时钟
+32M / 16 = 2M 经过ADC内部16分频得到2MHZ工作频率
+为了达到16BIT的精度使用了256 OSR
+2M /256 = 7.8125KHZ
+近似得到了7.8125khz的频率，但是得不到标准的8K频率。</p>
+<p>究其原因在于96MHZ这个时钟不能被256/128整除，以及对96MHZ的任意分频仅在0-64太小了，使得输入的时钟可配置的范围小。</p>
+<div class="section" id="id5">
+<h4>所以针对上述的实际需求，由两种方法可以改善这个问题<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h4>
+<p>1 增大源端分频器的分频范围从0-64 扩大到0-65535
+2 增补Basic Timer作为ADC/DAC的输入时钟。这样就可以灵活的给外设各种各样的频率.</p>
+</div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>2. 增加定时器捕获功能<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id7">
+<h3>想法<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h3>
+<p>外部存在一个方波信号，其频率储存着某个物理量信息，例如转速。定时器应该可以测量这个方波信号的频率信息。
+使用GPIO的外部中断与定时器协调工作可以完成这样的功能，但是对于资源消耗较大，最好是有对应的硬件设备直接支持此功能。</p>
+</div>
+<div class="section" id="id8">
+<h3>参考设计<a class="headerlink" href="#id8" title="永久链接至标题">¶</a></h3>
+<p>见STM32定时器设计介绍–输入捕获模式
+<img alt="input Capture Block Diagram" src="../_images/inputCapture1.jpg" /></p>
+<p>外部输入先进入【捕获滤波器】当触发电平保持N个有效时钟周期后，通知后级出现触发电平。
+后级进入【边沿检测器】后再进入【分频器】触发一个信号，记录此时的计数值CNT放入CCRx比较寄存器中，一次捕获结束。</p>
+<p><img alt="input Capture Work process" src="../_images/捕获过程1.png" /></p>
+</div>
+<div class="section" id="id9">
+<h3>应用<a class="headerlink" href="#id9" title="永久链接至标题">¶</a></h3>
+<p>许多传感器的输出都是频率输出，例如部分压力传感器，会将压力值的大小调制成频率信号输出。</p>
+<p>调频信号往往会是高频的信号，如果用GPIO外部中断+定时器的方法会占大量资源，所以设计捕获非常有必要。</p>
+<p>调频信号对噪声的抑制能力强，抗干扰能力强，。</p>
+</div>
+</div>
+<div class="section" id="pwm">
+<h2>3. 对PWM模块增补互补输出与死区插入功能<a class="headerlink" href="#pwm" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id10">
+<h3>想法<a class="headerlink" href="#id10" title="永久链接至标题">¶</a></h3>
+<p>PWM模块是否可以支持互补输出的工作方法，并且加入死区控制，应用在电机控制 逆变器等领域。
+<img alt="互补输出与死区意义" src="../_images/互补输出与死区1.png" /></p>
+<p>如图所示，OCx和OCxN是一对互补的PWM信号，OCx与OCxN极性相反，死区就是OCx与OCxN同时为低的delay时间区域。
+此时间区域是用来避免设备收到低电平信号后没有立刻关断，导致有一小段时间两个设备均打开的现象而设计的。</p>
+</div>
+<div class="section" id="id11">
+<h3>应用<a class="headerlink" href="#id11" title="永久链接至标题">¶</a></h3>
+<p>典型的应用在于类似逆变器的应用
+<img alt="逆变器应用" src="../_images/互补输出的应用.jpg" /></p>
+<p>如图，负载T.d，当S1 S3 S2 S4接入两对互补输出的PWM。
+当S1 S4导通S3 S2关断的时候，负载获得正电压，S3和S2导通，S1 S4关断的时候，负载获得负电压。</p>
+<p>显然 S1 S2 不可以同时打开，否则会短路烧坏管子。因此S1-S3 ， S2-S4 可以由互补的PWM来控制。</p>
+<p>死区的意义在于，当S1导通,S3截止，下一个时钟周期S3导通 S1截止，考虑到S1由导通到截止需要一定的时间，会出现短暂时间S1 S3都导通的情况
+于是加入死区概念，S1 S3都有一段时间都截止。</p>
+<p>同样的应用可以用于驱动三相交流电机，使用六路互补PWM输出，类似完成三相逆变的过程。</p>
+<p>因此如果想我们的MCU驱动高级的三相交流电电机，最好可以支持可插入死区的互补PWM输出。</p>
+</div>
+</div>
+<div class="section" id="id12">
+<h2>4. 是否可以提供下降计数模式/中间对其模式/重复计数模式等<a class="headerlink" href="#id12" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id13">
+<h3>想法<a class="headerlink" href="#id13" title="永久链接至标题">¶</a></h3>
+<p>是否可以支持更加丰富的计数模式</p>
+</div>
+<div class="section" id="id14">
+<h3>应用<a class="headerlink" href="#id14" title="永久链接至标题">¶</a></h3>
+<p>各种丰富的计数模式</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../STM32定时器设计介绍/STM32的定时器设计介绍.html" class="btn btn-neutral float-left" title="STM32的定时器设计介绍" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, JingyanChen
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
